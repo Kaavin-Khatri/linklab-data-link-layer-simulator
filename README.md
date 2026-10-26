@@ -1,2 +1,4 @@
 # linklab-data-link-layer-simulator
-Interactive data link layer simulator: bit/byte stuffing, VRC, LRC, CRC and checksum, plus Stop-and-Wait, Go-Back-N and Selective Repeat ARQ, with error-detection benchmarks and a Cisco Packet Tracer lab.
+LinkLab is a browser-based simulator that joins framing, error detection and flow control into one working frame pipeline, the way a real link uses them. A message is split into frames with a sequence number and CRC-8, bit-stuffed inside HDLC flags, sent over a simulated noisy channel, and checked and acknowledged by the receiver, which requests a resend for any corrupted frame. Built-in experiments run thousands of randomised trials. They show, for example, that CRC-8 catches every burst error of up to 8 bits while parity misses 39% of them, and that at 50% loss Go-Back-N needs 72% more transmissions than Selective Repeat. A companion Cisco Packet Tracer lab of two campuses joined by a serial WAN link shows the same ideas on real device models.
+
+Computer Networks project · Kaavin Nitin Khatri · Computer Engineering, L.J. Institute of Engineering and Technology
