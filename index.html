@@ -1,0 +1,1068 @@
+<title>LinkLab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: lab-instrument showcase — a live signal trace as the hero, then numbered build stages and measured results read like a test report */
+:root{
+  --bg:#eef1f4; --surface:#f9fafb; --ink:#17202b; --muted:#566170; --line:#d3d9e0;
+  --accent:#2b59c3; --flag:#a1338f; --stuff:#a86d12; --redund:#0f7d74; --err:#c8362f; --ok:#23824a;
+  --s1:#6b7b8c; --s2:#c2621a; --s3:#2b59c3; --scope:#e3e8ee; --seq:#5d4fb3;
+  --f-display:"Chakra Petch","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10161e; --surface:#171f29; --ink:#e4e9ef; --muted:#93a0ae; --line:#2a3542;
+  --accent:#7ea2ff; --flag:#e07ad0; --stuff:#f0b44c; --redund:#4fc7bb; --err:#ff7a70; --ok:#5fcf8a;
+  --s1:#9aa8b6; --s2:#f0934e; --s3:#7ea2ff; --scope:#0c1118; --seq:#a99cff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10161e; --surface:#171f29; --ink:#e4e9ef; --muted:#93a0ae; --line:#2a3542;
+  --accent:#7ea2ff; --flag:#e07ad0; --stuff:#f0b44c; --redund:#4fc7bb; --err:#ff7a70; --ok:#5fcf8a;
+  --s1:#9aa8b6; --s2:#f0934e; --s3:#7ea2ff; --scope:#0c1118; --seq:#a99cff; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 var(--f-body)}
+.in{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:.01em;line-height:1.1}
+h2{font-size:clamp(26px,4vw,34px);font-weight:600}
+h3{font-size:18px;font-weight:600}
+p{margin:0;max-width:66ch}
+a{color:var(--accent)}
+.muted{color:var(--muted)}
+.eyebrow{font:600 12px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .in{display:flex;align-items:center;gap:20px;height:54px}
+.logo{font:700 18px var(--f-display);color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:8px}
+.logo svg{color:var(--accent)}
+.top nav{display:flex;gap:18px;margin-left:auto;overflow-x:auto}
+.top nav a{font:500 14px var(--f-body);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top nav a:hover{color:var(--ink)}
+@media (max-width:720px){.top nav a.opt{display:none}}
+
+/* hero */
+.hero{padding-block:56px 40px}
+.hero .in{display:grid;gap:22px}
+.hero h1{font-size:clamp(48px,10vw,104px);font-weight:700;line-height:.92;letter-spacing:-.01em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.lede{font-size:clamp(17px,2.2vw,20px);max-width:58ch;color:var(--ink)}
+.meta{display:flex;flex-wrap:wrap;gap:8px 22px;font:500 13px var(--f-mono);color:var(--muted)}
+.cta{display:flex;flex-wrap:wrap;gap:10px}
+.btn{font:600 15px/1 var(--f-display);letter-spacing:.03em;padding:13px 18px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:var(--surface);text-decoration:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:hover{filter:brightness(1.08)}
+
+.scope{background:var(--scope);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.scope-head{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);font:500 12px var(--f-mono);color:var(--muted)}
+.scope-head label{display:flex;align-items:center;gap:8px}
+.scope-head input{font:500 14px var(--f-mono);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:5px 8px;width:140px}
+.scope canvas{display:block;width:100%;height:150px}
+.key{display:flex;flex-wrap:wrap;gap:14px;margin-left:auto}
+.key i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.scope-foot{padding:8px 14px;border-top:1px solid var(--line);font:500 12px var(--f-mono);color:var(--muted);overflow-x:auto;white-space:nowrap}
+
+section.s{padding-block:56px;border-top:1px solid var(--line)}
+section.s .in{display:flex;flex-direction:column;gap:26px}
+.head{display:flex;flex-direction:column;gap:10px}
+
+/* aim */
+.aim{display:grid;grid-template-columns:1.2fr 1fr;gap:32px;align-items:start}
+.aim>div{display:flex;flex-direction:column;gap:14px;min-width:0}
+@media (max-width:820px){.aim{grid-template-columns:1fr}}
+.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.facts div{background:var(--surface);padding:16px}
+.facts b{display:block;font:600 30px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.facts span{font-size:13px;color:var(--muted)}
+
+/* pipeline */
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;counter-reset:st}
+.stage{position:relative;padding:18px 18px 18px 0;display:flex;flex-direction:column;gap:8px;min-width:0}
+.stage .n{font:600 12px var(--f-mono);color:var(--accent)}
+.stage .bar{height:4px;background:var(--line);position:relative;margin-right:-18px}
+.stage .bar::after{content:"";position:absolute;left:0;top:-4px;width:12px;height:12px;border-radius:50%;background:var(--accent)}
+.stage.rx .bar::after{background:var(--ok)}
+.stage.ch .bar::after{background:var(--err)}
+.stage code{font:500 12px var(--f-mono);color:var(--muted)}
+.lanes{display:flex;flex-direction:column;gap:6px}
+.lanetitle{font:600 12px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-top:10px}
+@media (max-width:820px){.flow{grid-template-columns:1fr 1fr}}
+@media (max-width:460px){.flow{grid-template-columns:1fr}.stage .bar{margin-right:0}}
+
+/* coverage */
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font:600 11px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+td.mono{font-family:var(--f-mono);font-size:13px;white-space:nowrap}
+.tag{display:inline-block;font:600 11px/1 var(--f-mono);padding:4px 6px;border-radius:3px;border:1px solid var(--line);color:var(--muted);margin:1px 2px 1px 0}
+
+/* modules */
+.mods{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media (max-width:760px){.mods{grid-template-columns:1fr}}
+.mod{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.mod ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:15px}
+.mod .fn{font:500 12px var(--f-mono);color:var(--muted);overflow-x:auto;white-space:nowrap}
+.ex{font:500 14px var(--f-mono);letter-spacing:.06em;overflow-x:auto;white-space:nowrap}
+.ex .f{color:var(--flag)} .ex .z{color:var(--stuff);font-weight:600;text-decoration:underline} .ex .r{color:var(--redund)} .ex .x{color:var(--err);font-weight:600}
+
+/* results */
+.res{display:grid;grid-template-columns:1fr;gap:24px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+td.heat{font-family:var(--f-mono);text-align:right;white-space:nowrap}
+.chart{width:100%;display:block}
+.chart text{font:11px var(--f-mono);fill:var(--muted)}
+.chart .grid{stroke:var(--line)}
+.obs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:760px){.obs{grid-template-columns:1fr}}
+.obs div{border-top:2px solid var(--accent);padding-top:10px;font-size:15px}
+.obs b{font-family:var(--f-display);display:block;margin-bottom:4px}
+
+/* run */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:820px){.steps{grid-template-columns:1fr}}
+.step{display:flex;flex-direction:column;gap:10px;min-width:0}
+.step .n{font:700 34px/1 var(--f-display);color:var(--accent)}
+.codebox{position:relative;background:var(--scope);border:1px solid var(--line);border-radius:6px;min-width:0}
+.codebox pre{margin:0;padding:14px 16px;overflow-x:auto;font:13px/1.55 var(--f-mono);color:var(--ink)}
+.copy{position:absolute;top:8px;right:8px;font:600 12px var(--f-mono);padding:5px 9px;border-radius:3px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.tabs{display:flex;gap:4px}
+.tabs button{font:600 13px var(--f-display);padding:7px 12px;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:4px;cursor:pointer}
+.tabs button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.menu{font:13px/1.6 var(--f-mono);color:var(--muted)}
+
+/* source */
+details.src{background:var(--surface);border:1px solid var(--line);border-radius:6px}
+details.src summary{padding:14px 18px;cursor:pointer;font:600 15px var(--f-display);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+details.src summary span{font:500 12px var(--f-mono);color:var(--muted)}
+details.src .codebox{border:0;border-top:1px solid var(--line);border-radius:0 0 6px 6px}
+details.src pre{max-height:560px}
+pre .c{color:var(--muted)} pre .k{color:var(--accent)} pre .s{color:var(--redund)} pre .p{color:var(--flag)}
+
+/* viva */
+.qa{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+.qa details{border-bottom:1px solid var(--line)}
+.qa details:last-child{border-bottom:0}
+.qa summary{padding:14px 18px;cursor:pointer;font-weight:600;list-style:none;display:flex;gap:12px}
+.qa summary::before{content:"Q";font:700 14px var(--f-display);color:var(--accent);flex:none;padding-top:1px}
+.qa details p{padding:0 18px 16px 44px;color:var(--muted)}
+
+footer{border-top:1px solid var(--line);padding-block:30px 40px}
+footer .in{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-between;font-size:14px;color:var(--muted)}
+.simbox{display:flex;flex-direction:column;gap:18px;min-width:0}
+.simtabs{position:static}
+
+
+
+.simtabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto}
+.simtabs button{font:600 14px/1 var(--f-display);letter-spacing:.03em;background:none;border:0;color:var(--muted);
+  padding:12px 14px;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+.simtabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.simtabs button:hover{color:var(--ink)}
+button:focus-visible,input:focus-visible,select:focus-visible,.bit.click:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+section.view{display:flex;flex-direction:column;gap:18px}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font:600 11px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.controls input,.controls select{font:500 14px var(--f-mono);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:7px 9px;min-width:0}
+.controls input[type=text]{width:min(260px,100%)}
+.controls input[type=number]{width:84px}
+.btn{font:600 13px/1 var(--f-display);letter-spacing:.04em;padding:9px 14px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:var(--surface);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:hover{filter:brightness(1.08)}
+
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:6px}
+
+.bits{display:flex;flex-wrap:wrap;gap:1px 0;font:500 13px/1 var(--f-mono)}
+.bits .grp{display:inline-flex;margin-right:7px;margin-bottom:3px}
+.bit{display:inline-block;width:1.15em;text-align:center;padding:4px 0;border-radius:2px;color:var(--ink)}
+.bit.flag{color:var(--flag);background:color-mix(in srgb,var(--flag) 16%,transparent)}
+.bit.stuff{color:var(--stuff);background:color-mix(in srgb,var(--stuff) 24%,transparent);font-weight:600}
+.bit.red{color:var(--redund);background:color-mix(in srgb,var(--redund) 16%,transparent)}
+.bit.seq{color:var(--seq);background:color-mix(in srgb,var(--seq) 14%,transparent)}
+.bit.pad{color:var(--muted)}
+.bit.err{color:var(--surface);background:var(--err);font-weight:600}
+.bit.click{cursor:pointer}
+.bit.click:hover{outline:1px solid var(--accent)}
+
+.row{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:start}
+.row>.lab{font:600 12px/1.3 var(--f-mono);color:var(--muted);padding-top:4px}
+.row>div{min-width:0}
+@media (max-width:640px){.row{grid-template-columns:1fr;gap:4px}}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:820px){.two{grid-template-columns:1fr}}
+
+.pill{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 var(--f-mono);padding:6px 9px;border-radius:999px;border:1px solid}
+.pill.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 50%,transparent);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.pill.bad{color:var(--err);border-color:color-mix(in srgb,var(--err) 50%,transparent);background:color-mix(in srgb,var(--err) 10%,transparent)}
+.pill.warn{color:var(--stuff);border-color:color-mix(in srgb,var(--stuff) 50%,transparent);background:color-mix(in srgb,var(--stuff) 12%,transparent)}
+
+.stats{display:flex;flex-wrap:wrap;gap:24px}
+.stat .v{font:600 24px/1.1 var(--f-display);font-variant-numeric:tabular-nums}
+.stat .k{font-size:12px;color:var(--muted)}
+
+.frames{display:flex;flex-direction:column;gap:12px}
+.frame{border:1px solid var(--line);border-left:3px solid var(--line);border-radius:4px;padding:12px 14px;background:var(--surface);display:flex;flex-direction:column;gap:10px}
+.frame.done{border-left-color:var(--ok)}
+.frame h3 span{font-family:var(--f-mono);font-weight:500;color:var(--muted)}
+.attempt{display:flex;flex-direction:column;gap:6px;padding-top:8px;border-top:1px dashed var(--line)}
+
+pre.div{font:13px/1.45 var(--f-mono);margin:0;overflow-x:auto;padding:12px;background:var(--bg);border-radius:4px;max-height:340px}
+pre.div .d{color:var(--muted)} pre.div .g{color:var(--accent)} pre.div .r{color:var(--redund);font-weight:600}
+
+table{border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font:600 11px/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.heat{font-family:var(--f-mono);text-align:right}
+
+.ladder-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.ladder{display:block;min-width:600px;width:100%}
+.ladder text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.ladder .lane{stroke:var(--line);stroke-width:2}
+.ladder .fr{stroke:var(--accent);stroke-width:1.6;fill:none}
+.ladder .fr.re{stroke:var(--s2)}
+.ladder .ak{stroke:var(--ok);stroke-width:1.3;stroke-dasharray:4 3;fill:none}
+.ladder .x{stroke:var(--err);stroke-width:2.2}
+.ladder .lbl-f{fill:var(--ink);font-weight:600}
+.ladder .lbl-ok{fill:var(--ok)} .ladder .lbl-bad{fill:var(--err)} .ladder .lbl-warn{fill:var(--stuff)}
+.ladder .band{fill:color-mix(in srgb,var(--accent) 8%,transparent)}
+.ladder .tmo{fill:var(--flag);font-weight:600}
+.ladder .fut{opacity:.08}
+.ladder .now{filter:drop-shadow(0 0 3px var(--accent))}
+.ladder .head{font-family:var(--f-display);font-size:13px;fill:var(--ink);font-weight:600}
+
+.strip{display:flex;flex-wrap:wrap;gap:4px}
+.cell{width:34px;height:30px;border-radius:3px;border:1px solid var(--line);display:grid;place-items:center;font:600 11px var(--f-mono);color:var(--muted);position:relative}
+.cell.win{border-color:var(--accent);border-width:2px}
+.cell.sent{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--ink)}
+.cell.acked{background:color-mix(in srgb,var(--ok) 22%,transparent);color:var(--ink)}
+.cell.got{background:color-mix(in srgb,var(--ok) 22%,transparent);color:var(--ink)}
+.cell.buf{background:color-mix(in srgb,var(--stuff) 24%,transparent);color:var(--ink)}
+.playbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.playbar input[type=range]{flex:1;min-width:160px;accent-color:var(--accent)}
+.note{font-size:13px;color:var(--muted);max-width:72ch}
+.chart{width:100%;max-width:720px;display:block}
+.chart text{font:11px var(--f-mono);fill:var(--muted)}
+.chart .grid{stroke:var(--line)}
+.bytes{display:flex;flex-wrap:wrap;gap:4px}
+.byte{font:500 13px/1 var(--f-mono);border:1px solid var(--line);border-radius:3px;padding:6px 7px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.byte small{font-size:10px;color:var(--muted)}
+.byte.flag{border-color:var(--flag);color:var(--flag)}
+.byte.stuff{border-color:var(--stuff);color:var(--stuff);background:color-mix(in srgb,var(--stuff) 14%,transparent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+
+<header class="top">
+  <div class="in">
+    <a class="logo" href="#top"><svg width="22" height="14" viewBox="0 0 22 14" aria-hidden="true"><path d="M0 12H4V2H8V12H10V2H18V12H22" fill="none" stroke="currentColor" stroke-width="2"/></svg>LinkLab</a>
+    <nav>
+      <a href="#sim">Simulator</a>
+      <a href="#how">How it works</a>
+      <a href="#coverage" class="opt">Syllabus</a>
+      <a href="#viva">Viva</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="in">
+    <span class="eyebrow">Computer Networks · Individual Project</span>
+    <h1>Link<em>Lab</em></h1>
+    <p class="lede">A data link layer simulator with error-detection benchmarking. It frames a message, protects it, sends it over a noisy link and recovers it bit for bit. Then it measures how well each technique actually works.</p>
+    <div class="meta"><span>Kaavin Nitin Khatri</span><span>Computer Engineering</span><span>L.J. Institute of Engineering and Technology</span><span>Runs in the browser</span><span>2026</span></div>
+    <div class="cta">
+      <a class="btn" href="#sim">Start the simulation ↓</a>
+      <a class="btn ghost" href="#how">How it works</a>
+    </div>
+
+    <div class="scope" aria-label="Live bit-stuffed signal of the word you type">
+      <div class="scope-head">
+        <label for="w">CH1 · type a word <input id="w" type="text" value="Hi~" maxlength="10"></label>
+        <span class="key"><span><i style="background:var(--flag)"></i>flag</span><span><i style="background:var(--stuff)"></i>stuffed 0</span><span><i style="background:var(--accent)"></i>data</span></span>
+      </div>
+      <canvas id="scope"></canvas>
+      <div class="scope-foot" id="scopefoot"></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="sim">
+  <div class="in">
+    <div class="head">
+      <span class="eyebrow">Simulator</span>
+      <h2>Run it right here</h2>
+      <p class="muted">Five tools, all working in this page. Change any value and run again. Use the same seed to repeat a run exactly during your demo.</p>
+    </div>
+    <div class="simbox">
+<nav class="simtabs" role="tablist">
+  <button role="tab" data-v="pipeline" aria-selected="true">Pipeline</button>
+  <button role="tab" data-v="framing">Framing</button>
+  <button role="tab" data-v="detect">Error detection</button>
+  <button role="tab" data-v="arq">Sliding window</button>
+  <button role="tab" data-v="bench">Experiments</button>
+</nav>
+
+<!-- PIPELINE -->
+<section class="view" id="v-pipeline">
+  <div class="controls">
+    <div class="field"><label for="p-msg">Message</label><input type="text" id="p-msg" value="HELLO LJIET" maxlength="40"></div>
+    <div class="field"><label for="p-fs">Bytes / frame</label><input type="number" id="p-fs" value="4" min="1" max="8"></div>
+    <div class="field"><label for="p-noise">Noise %</label><input type="number" id="p-noise" value="40" min="0" max="90"></div>
+    <div class="field"><label for="p-seed">Seed</label><input type="number" id="p-seed" value="3" min="0"></div>
+    <button class="btn" id="p-run">Transmit</button>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--seq)"></i>Sequence no.</span>
+    <span><i style="background:var(--redund)"></i>CRC-8</span>
+    <span><i style="background:var(--flag)"></i>Flag 01111110</span>
+    <span><i style="background:var(--stuff)"></i>Stuffed 0</span>
+    <span><i style="background:var(--err)"></i>Flipped by noise</span>
+  </div>
+  <div class="panel" id="p-summary"></div>
+  <div class="frames" id="p-frames"></div>
+</section>
+
+<!-- FRAMING -->
+<section class="view" id="v-framing" hidden>
+  <div class="two">
+    <div class="panel">
+      <span class="eyebrow">Bit-oriented · HDLC</span>
+      <h3>Bit stuffing</h3>
+      <p class="note">After five 1s in a row the sender inserts a 0, so the data can never look like the flag. The receiver drops the 0 that follows any five 1s.</p>
+      <div class="controls" style="padding:10px">
+        <div class="field"><label for="bs-in">Text or bit string</label><input type="text" id="bs-in" value="0111111111101111110"></div>
+      </div>
+      <div id="bs-out" class="frames"></div>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Byte-oriented · PPP style</span>
+      <h3>Byte stuffing</h3>
+      <p class="note">FLAG is ~ (0x7E) and ESC is } (0x7D). Any FLAG or ESC inside the data gets an ESC in front of it.</p>
+      <div class="controls" style="padding:10px">
+        <div class="field"><label for="by-in">Text</label><input type="text" id="by-in" value="A~B}C"></div>
+      </div>
+      <div id="by-out" class="frames"></div>
+    </div>
+  </div>
+</section>
+
+<!-- DETECT -->
+<section class="view" id="v-detect" hidden>
+  <div class="controls">
+    <div class="field"><label for="d-msg">Message</label><input type="text" id="d-msg" value="NET" maxlength="16"></div>
+    <div class="field"><label for="d-m">Method</label>
+      <select id="d-m"><option value="0">VRC (even parity)</option><option value="1">LRC</option><option value="2" selected>CRC</option><option value="3">Checksum-16</option></select></div>
+    <div class="field"><label for="d-gen">CRC generator</label>
+      <select id="d-gen"><option value="100000111">CRC-8 · 100000111</option><option value="10011">CRC-4 · 10011</option><option value="10001000000100001">CRC-16-CCITT</option></select></div>
+    <button class="btn ghost" data-e="1">1-bit error</button>
+    <button class="btn ghost" data-e="2">2-bit error</button>
+    <button class="btn ghost" data-e="4">Burst of 6</button>
+    <button class="btn ghost" data-e="0">Clear errors</button>
+  </div>
+  <div class="two">
+    <div class="panel" id="d-sender"></div>
+    <div class="panel" id="d-recv"></div>
+  </div>
+</section>
+
+<!-- ARQ -->
+<section class="view" id="v-arq" hidden>
+  <div class="controls">
+    <div class="field"><label for="a-p">Protocol</label>
+      <select id="a-p"><option value="sw">Stop-and-Wait</option><option value="gbn" selected>Go-Back-N</option><option value="sr">Selective Repeat</option></select></div>
+    <div class="field"><label for="a-n">Frames</label><input type="number" id="a-n" value="8" min="1" max="30"></div>
+    <div class="field"><label for="a-w">Window</label><input type="number" id="a-w" value="4" min="1" max="15"></div>
+    <div class="field"><label for="a-loss">Loss %</label><input type="number" id="a-loss" value="20" min="0" max="80"></div>
+    <div class="field"><label for="a-seed">Seed</label><input type="number" id="a-seed" value="5" min="0"></div>
+    <button class="btn" id="a-run">Simulate</button>
+  </div>
+  <div class="panel">
+    <div class="stats" id="a-stats"></div>
+    <div class="playbar">
+      <button class="btn ghost" id="a-play">Play</button>
+      <input type="range" id="a-step" min="0" max="0" value="0" aria-label="Step">
+      <span class="muted" id="a-steplbl" style="font-family:var(--f-mono);font-size:13px"></span>
+    </div>
+    <div class="row"><div class="lab">Sender window</div><div class="strip" id="a-send"></div></div>
+    <div class="row"><div class="lab">Receiver buffer</div><div class="strip" id="a-recv"></div></div>
+    <div class="legend">
+      <span><i style="background:color-mix(in srgb,var(--accent) 40%,transparent)"></i>Sent, waiting</span>
+      <span><i style="background:color-mix(in srgb,var(--ok) 50%,transparent)"></i>Acknowledged / delivered</span>
+      <span><i style="background:color-mix(in srgb,var(--stuff) 50%,transparent)"></i>Buffered out of order</span>
+      <span><i style="border:2px solid var(--accent)"></i>Inside window</span>
+    </div>
+  </div>
+  <div class="ladder-wrap"><svg class="ladder" id="a-ladder"></svg></div>
+</section>
+
+<!-- BENCH -->
+<section class="view" id="v-bench" hidden>
+  <div class="panel">
+    <span class="eyebrow">Experiment 1</span>
+    <h3>Which errors does each method catch?</h3>
+    <p class="note">Random 16-byte frames, each hit with one error pattern, then checked by the receiver. Each cell is the share of corrupted frames that got caught.</p>
+    <div class="scroll"><table id="b-det"></table></div>
+    <p class="note" id="b-det-note"></p>
+  </div>
+  <div class="panel">
+    <span class="eyebrow">Experiment 2</span>
+    <h3>Transmissions per delivered frame as loss grows</h3>
+    <p class="note">40 frames, window of 7, frames and ACKs both lost at the given rate, averaged over 80 runs per point. Lower is better.</p>
+    <svg class="chart" id="b-chart" viewBox="0 0 720 320"></svg>
+    <p class="note">Go-Back-N pays for every loss with a whole window of resends. Selective Repeat resends only what was lost, so it uses the link about as sparingly as Stop-and-Wait while still sending a window at a time.</p>
+  </div>
+  <button class="btn ghost" id="b-run" style="align-self:flex-start">Run experiments again</button>
+</section>
+    </div>
+  </div>
+</section>
+<section class="s" id="aim">
+  <div class="in aim">
+    <div>
+      <span class="eyebrow">Aim</span>
+      <h2>One project that ties the data link layer together</h2>
+      <p>Textbooks teach framing, error detection and flow control as separate topics, and lab programs usually implement one at a time. LinkLab joins them into a single working pipeline, the way a real link uses them. A message gets a sequence number and a CRC. It is bit-stuffed, corrupted by a simulated noisy channel, checked by the receiver and retransmitted until it arrives intact.</p>
+      <p>The project then goes one step further than a demo. In the Experiments tab it runs thousands of randomized trials and reports how often each detection method catches each kind of error, and how Stop-and-Wait, Go-Back-N and Selective Repeat compare as the link gets worse.</p>
+    </div>
+    <div class="facts">
+      <div><b>4</b><span>error-detection methods</span></div>
+      <div><b>3</b><span>ARQ protocols</span></div>
+      <div><b>2</b><span>framing techniques</span></div>
+      <div><b>11</b><span>college list items covered</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="how">
+  <div class="in">
+    <div class="head">
+      <span class="eyebrow">How it works</span>
+      <h2>The path of one frame</h2>
+      <p class="muted">This is what the Pipeline tab of the simulator runs, step by step.</p>
+    </div>
+    <div class="lanes">
+      <div class="lanetitle">Sender</div>
+      <div class="flow">
+        <div class="stage"><div class="bar"></div><span class="n">01</span><h3>Split into frames</h3><p class="muted">The message is cut into fixed-size payloads.</p></div>
+        <div class="stage"><div class="bar"></div><span class="n">02</span><h3>Add sequence number</h3><p class="muted">An 8-bit SEQ header so the receiver can order frames.</p></div>
+        <div class="stage"><div class="bar"></div><span class="n">03</span><h3>Append CRC-8</h3><p class="muted">Modulo-2 division by x⁸+x²+x+1 gives 8 check bits.</p></div>
+        <div class="stage"><div class="bar"></div><span class="n">04</span><h3>Bit stuff + flags</h3><p class="muted">A 0 after every five 1s, then 01111110 at both ends.</p></div>
+      </div>
+      <div class="lanetitle">Channel and receiver</div>
+      <div class="flow">
+        <div class="stage ch"><div class="bar"></div><span class="n">05</span><h3>Noisy channel</h3><p class="muted">With the chosen probability, one random bit is flipped.</p></div>
+        <div class="stage rx"><div class="bar"></div><span class="n">06</span><h3>Find flags, de-stuff</h3><p class="muted">Six 1s in a row inside the frame means a framing error.</p></div>
+        <div class="stage rx"><div class="bar"></div><span class="n">07</span><h3>Check CRC</h3><p class="muted">A non-zero remainder means the frame is corrupted.</p></div>
+        <div class="stage rx"><div class="bar"></div><span class="n">08</span><h3>ACK or NAK</h3><p class="muted">A NAK makes the sender retransmit until the frame is clean.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="modules">
+  <div class="in">
+    <div class="head">
+      <span class="eyebrow">Modules</span>
+      <h2>What is inside</h2>
+    </div>
+    <div class="mods">
+      <div class="mod">
+        <h3>Framing</h3>
+        <ul><li>Bit stuffing with the HDLC flag 01111110</li><li>Byte stuffing with FLAG ~ (0x7E) and ESC } (0x7D)</li><li>Receiver de-stuffing with framing-error detection</li></ul>
+        <div class="ex" aria-label="Example: 11111111 stuffed"><span class="f">01111110</span> 11111<span class="z">0</span>111 <span class="f">01111110</span></div>
+      </div>
+      <div class="mod">
+        <h3>Error detection</h3>
+        <ul><li>Parity finding (odd/even) and VRC per character</li><li>LRC column parity over the block</li><li>CRC with selectable generator, long division printed step by step</li><li>16-bit ones' complement checksum, checked on both sides</li></ul>
+        <div class="ex" aria-label="NET with CRC-8">01001110 01000101 01010100 <span class="r">00011011</span></div>
+      </div>
+      <div class="mod">
+        <h3>Flow and error control</h3>
+        <ul><li>Stop-and-Wait (Go-Back-N with a window of 1)</li><li>Go-Back-N with cumulative ACKs and timeouts</li><li>Selective Repeat with receiver buffering and individual ACKs</li><li>Frame loss and ACK loss simulated separately</li></ul>
+      </div>
+      <div class="mod">
+        <h3>Experiments</h3>
+        <ul><li>Detection rate for 6 error patterns × 4 methods</li><li>Transmissions per frame from 0% to 50% loss</li><li>Seeded random generator so a demo can be repeated exactly</li><li>Runs live in the browser, re-run any time</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="coverage">
+  <div class="in">
+    <div class="head">
+      <span class="eyebrow">Syllabus coverage</span>
+      <h2>Where each topic lives</h2>
+      <p class="muted">Numbers refer to the college's list of project definitions.</p>
+    </div>
+    <div class="scroll"><table>
+      <tr><th>Topic</th><th>In LinkLab</th><th>List items</th></tr>
+      <tr><td>Bit stuffing</td><td>Framing tab, and stage 04 of the Pipeline</td><td><span class="tag">#6</span><span class="tag">#35</span></td></tr>
+      <tr><td>Byte stuffing</td><td>Framing tab</td><td><span class="tag">#8</span><span class="tag">#35</span></td></tr>
+      <tr><td>Parity finding, odd or even</td><td>Error detection tab, VRC with a parity table per character</td><td><span class="tag">#10</span><span class="tag">#13</span></td></tr>
+      <tr><td>VRC, LRC, CRC, checksum</td><td>Error detection tab and Experiments tab</td><td><span class="tag">#3</span><span class="tag">#4</span><span class="tag">#9</span><span class="tag">#14</span><span class="tag">#37</span></td></tr>
+      <tr><td>Flow control</td><td>Sliding window tab, Stop-and-Wait</td><td><span class="tag">#7</span><span class="tag">#34</span></td></tr>
+      <tr><td>Go-Back-N and Selective Repeat</td><td>Sliding window tab and Experiments tab</td><td><span class="tag">#15</span><span class="tag">#36</span></td></tr>
+    </table></div>
+  </div>
+</section>
+
+
+
+
+<section class="s" id="viva">
+  <div class="in">
+    <div class="head">
+      <span class="eyebrow">Viva preparation</span>
+      <h2>Questions you are likely to get</h2>
+    </div>
+    <div class="qa">
+      <details><summary>Why is the flag 01111110, and why stuff after five 1s?</summary><p>The flag is the only pattern with six 1s in a row. Inserting a 0 after any five consecutive 1s in the data guarantees six 1s never appear inside a frame, so the receiver can always find frame boundaries.</p></details>
+      <details><summary>How does CRC detect errors?</summary><p>The sender appends r zeros to the data, divides by the generator using modulo-2 (XOR) division, and sends the data plus the r-bit remainder. The whole codeword is then exactly divisible by the generator. The receiver divides again, and any non-zero remainder means an error.</p></details>
+      <details><summary>Which errors can CRC never miss?</summary><p>All single-bit errors, all odd numbers of errors when the generator has x+1 as a factor, and every burst no longer than r bits. Longer bursts slip through with a probability of about 2⁻ʳ, which the benchmark confirms.</p></details>
+      <details><summary>What is the difference between VRC and LRC?</summary><p>VRC adds one parity bit to each character, a row check. LRC adds a whole parity character for the block, one bit per column. VRC misses even numbers of flips in one character, and LRC misses two flips in the same column.</p></details>
+      <details><summary>How does the checksum work on both sides?</summary><p>The sender adds the data as 16-bit words with end-around carry and sends the complement of the sum. The receiver adds every word including the checksum. A result of FFFF means no error was detected.</p></details>
+      <details><summary>Why is Selective Repeat better than Go-Back-N on a bad link?</summary><p>Go-Back-N discards every frame after a lost one and resends the whole window. Selective Repeat buffers out-of-order frames and resends only the missing ones. It needs more receiver memory and individual ACKs in exchange.</p></details>
+      <details><summary>What limits the window size?</summary><p>With m-bit sequence numbers, Go-Back-N can use a window of at most 2ᵐ − 1 and Selective Repeat at most 2ᵐ⁻¹. Larger windows let an old frame be mistaken for a new one with the same number.</p></details>
+      <details><summary>Why use a random seed?</summary><p>The channel noise comes from a pseudo-random generator. Fixing the seed makes every run repeatable, so a demo shows the same losses each time and results can be checked by someone else.</p></details>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="in">
+    <span>LinkLab · Computer Networks individual project</span>
+    <span>Kaavin Nitin Khatri · Computer Engineering · L.J. Institute of Engineering and Technology · 2026</span>
+  </div>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+/* ---------- hero scope: NRZ trace of the bit-stuffed word ---------- */
+const HFLAG = '01111110';
+function stuff(word){
+  const data = [...word].map(c => (c.charCodeAt(0) & 255).toString(2).padStart(8,'0')).join('');
+  const out = []; let ones = 0;
+  for (const b of HFLAG) out.push([b,'f']);
+  for (const b of data){ out.push([b,'d']); if (b==='1'){ if (++ones===5){ out.push(['0','z']); ones=0; } } else ones=0; }
+  for (const b of HFLAG) out.push([b,'f']);
+  return { data, out };
+}
+const cv = $('scope'), ctx = cv.getContext('2d');
+let bits = [], offset = 0, last = 0;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function setWord(){
+  const w = $('w').value || 'Hi~';
+  const { data, out } = stuff(w);
+  bits = out;
+  const nz = out.filter(b=>b[1]==='z').length;
+  $('scopefoot').innerHTML = `${data.length} data bits → ${out.length} on the wire · ${nz} stuffed · ` +
+    out.map(([b,t]) => t==='f' ? `<span style="color:var(--flag)">${b}</span>` : t==='z' ? `<span style="color:var(--stuff);font-weight:600">${b}</span>` : b).join('');
+  offset = 0;
+  if (reduce) draw();
+}
+function draw(){
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== W*dpr){ cv.width = W*dpr; cv.height = H*dpr; }
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  const cell = Math.max(14, Math.min(26, W/42)), hi = H*0.28, lo = H*0.72;
+  ctx.strokeStyle = css('--line'); ctx.lineWidth = 1;
+  for (let x = -(offset % cell); x < W; x += cell){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+  const total = bits.length * cell + cell*6;
+  const col = { f: css('--flag'), z: css('--stuff'), d: css('--accent') };
+  ctx.font = `500 11px ${css('--f-mono')}`; ctx.textAlign = 'center';
+  for (let rep = -1; rep < Math.ceil(W/total)+1; rep++){
+    let prevY = null;
+    bits.forEach(([b,t], i) => {
+      const x = rep*total + i*cell - offset % total + cell*3;
+      if (x > W || x + cell < 0){ prevY = b==='1'?hi:lo; return; }
+      const y = b==='1' ? hi : lo;
+      if (t==='z'){ ctx.fillStyle = col.z + '33'; ctx.fillRect(x, 0, cell, H); }
+      ctx.strokeStyle = col[t]; ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      if (prevY !== null && prevY !== y){ ctx.moveTo(x, prevY); ctx.lineTo(x, y); } else ctx.moveTo(x, y);
+      ctx.lineTo(x+cell, y); ctx.stroke();
+      ctx.fillStyle = col[t]; ctx.fillText(b, x+cell/2, H-10);
+      prevY = y;
+    });
+  }
+}
+function loop(t){
+  if (!last) last = t;
+  offset += (t-last) * 0.035; last = t;
+  draw();
+  requestAnimationFrame(loop);
+}
+$('w').addEventListener('input', setWord);
+setWord();
+if (reduce) { draw(); addEventListener('resize', draw); } else requestAnimationFrame(loop);
+
+
+
+/* ===================== seeded random ===================== */
+let S = 1;
+function seedRng(s){ S = (s|0) || 1; }
+function rng(){ S = S + 0x6D2B79F5 | 0; let t = Math.imul(S ^ S >>> 15, 1 | S); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+const ri = n => Math.floor(rng() * n);
+const chance = p => rng() * 100 < p;
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ===================== bit helpers ===================== */
+const toBits = str => [...str].map(ch => (ch.charCodeAt(0) & 255).toString(2).padStart(8,'0')).join('');
+const fromBits = b => { let s=''; for (let i=0;i+8<=b.length;i+=8) s += String.fromCharCode(parseInt(b.slice(i,i+8),2)); return s; };
+const pad = (v,w) => v.toString(2).padStart(w,'0');
+
+function renderBits(bits, cls, opts={}){
+  const g = opts.group || 0, click = opts.click;
+  let html = '<div class="bits">', open = false;
+  for (let i=0;i<bits.length;i++){
+    if (g && i%g===0){ if (open) html += '</span>'; html += '<span class="grp">'; open = true; }
+    const c = cls && cls[i] ? ' '+cls[i] : '';
+    html += click ? `<span class="bit click${c}" data-i="${i}" tabindex="0" role="button" aria-label="bit ${i}">${bits[i]}</span>`
+                  : `<span class="bit${c}">${bits[i]}</span>`;
+  }
+  if (open) html += '</span>';
+  return html + '</div>';
+}
+
+/* ===================== framing ===================== */
+const FLAG = '01111110';
+function bitStuff(d){
+  let out = FLAG, m = Array(8).fill('flag'), ones = 0;
+  for (const b of d){
+    out += b; m.push('');
+    if (b === '1'){ if (++ones === 5){ out += '0'; m.push('stuff'); ones = 0; } } else ones = 0;
+  }
+  out += FLAG; m.push(...Array(8).fill('flag'));
+  return { out, m };
+}
+function bitDestuff(s){
+  if (s.length < 16 || !s.startsWith(FLAG) || !s.endsWith(FLAG)) return null;
+  let o = '', ones = 0;
+  for (let i=8;i<s.length-8;i++){
+    if (ones === 5){ ones = 0; if (s[i] === '0') continue; return null; }
+    o += s[i]; ones = s[i] === '1' ? ones+1 : 0;
+  }
+  return o;
+}
+const FB = 0x7E, EB = 0x7D;
+function byteStuff(str){
+  const out = [{v:FB,c:'flag'}];
+  for (const ch of str){ const v = ch.charCodeAt(0)&255; if (v===FB||v===EB) out.push({v:EB,c:'stuff'}); out.push({v,c:''}); }
+  out.push({v:FB,c:'flag'});
+  return out;
+}
+function byteDestuff(arr){
+  const v = arr.map(x=>x.v); if (v[0]!==FB || v[v.length-1]!==FB) return null;
+  let s = '';
+  for (let i=1;i<v.length-1;i++){ if (v[i]===EB){ i++; if (i>=v.length-1) return null; } s += String.fromCharCode(v[i]); }
+  return s;
+}
+
+/* ===================== error detection ===================== */
+let GEN = '100000111';
+function mod2div(div, gen, trace){
+  const w = div.split(''), g = gen.length, steps = [];
+  for (let i=0;i+g<=w.length;i++){
+    if (w[i] !== '1') continue;
+    for (let j=0;j<g;j++) w[i+j] = w[i+j] === gen[j] ? '0' : '1';
+    if (trace) steps.push({ i, after: w.join('') });
+  }
+  return { rem: w.slice(w.length-(g-1)).join(''), steps };
+}
+function csum16(b){
+  let sum = 0;
+  for (let i=0;i+16<=b.length;i+=16){ sum += parseInt(b.slice(i,i+16),2); sum = (sum & 0xFFFF) + (sum >>> 16); }
+  return sum & 0xFFFF;
+}
+const ones = s => [...s].filter(c=>c==='1').length;
+const METHODS = ['VRC','LRC','CRC','Checksum-16'];
+function encode(m, d){
+  let cw = '', cls = [];
+  if (m === 0){
+    for (let i=0;i<d.length;i+=8){ const by = d.slice(i,i+8); cw += by + (ones(by)%2); cls.push(...Array(8).fill(''),'red'); }
+  } else if (m === 1){
+    let p = ''; for (let c=0;c<8;c++){ let o=0; for (let i=c;i<d.length;i+=8) o += d[i]==='1'; p += o%2; }
+    cw = d + p; cls = [...Array(d.length).fill(''), ...Array(8).fill('red')];
+  } else if (m === 2){
+    const r = GEN.length-1, rem = mod2div(d+'0'.repeat(r), GEN).rem;
+    cw = d + rem; cls = [...Array(d.length).fill(''), ...Array(r).fill('red')];
+  } else {
+    let p = d; while (p.length % 16) p += '0';
+    cw = p + pad((~csum16(p)) & 0xFFFF, 16);
+    cls = [...Array(d.length).fill(''), ...Array(p.length-d.length).fill('pad'), ...Array(16).fill('red')];
+  }
+  return { cw, cls };
+}
+function check(m, cw){
+  if (m === 0){ for (let i=0;i+9<=cw.length;i+=9) if (ones(cw.slice(i,i+9))%2) return false; return true; }
+  if (m === 1){ for (let c=0;c<8;c++){ let o=0; for (let i=c;i<cw.length;i+=8) o += cw[i]==='1'; if (o%2) return false; } return true; }
+  if (m === 2) return !mod2div(cw, GEN).rem.includes('1');
+  return csum16(cw) === 0xFFFF;
+}
+function flip(a, i){ a[i] = a[i]==='0' ? '1' : '0'; }
+function inject(cw, pat, L){
+  const a = cw.split(''), n = a.length, f = new Set();
+  if (pat === 4){
+    L = Math.min(L, n); const s = ri(n-L+1);
+    for (let i=0;i<L;i++) if (i===0 || i===L-1 || ri(2)){ flip(a,s+i); f.add(s+i); }
+  } else {
+    while (f.size < pat){ const p = ri(n); if (!f.has(p)){ f.add(p); flip(a,p); } }
+  }
+  return { cw: a.join(''), f };
+}
+
+/* ===================== ARQ simulations ===================== */
+function simGBN(N, W, p){
+  const ev = []; let base=0, next=0, exp=0, tx=0, retx=0, rounds=0; const sent = Array(N).fill(false);
+  let acked = 0;
+  const snap = () => ({ base, W, send: Array.from({length:N},(_,i)=> i<acked ? 'acked' : (sent[i] && i>=base && i<next ? 'sent' : '')),
+                        recv: Array.from({length:N},(_,i)=> i<exp ? 'got' : '') });
+  while (base < N){
+    rounds++; acked = base;
+    ev.push({ k:'round', r:rounds, a:base, b:Math.min(base+W,N)-1, s:snap() });
+    while (next < base+W && next < N){
+      tx++; const re = sent[next]; if (re) retx++; sent[next] = true;
+      const e = { k:'tx', f:next, re, lost:false, rx:null, ack:null, ackLost:false };
+      if (chance(p)) e.lost = true;
+      else {
+        let sa = false;
+        if (next === exp){ exp++; sa = true; e.rx = 'accepted'; }
+        else if (next < exp){ sa = true; e.rx = 'duplicate'; }
+        else e.rx = 'discarded';
+        if (sa){ e.ack = exp; if (chance(p)) e.ackLost = true; else if (exp > acked) acked = exp; }
+      }
+      next++; e.s = snap(); ev.push(e);
+    }
+    if (acked > base){ base = acked; ev.push({ k:'slide', to:base, s:snap() }); }
+    if (base < next){ ev.push({ k:'timeout', txt:`timeout · go back to F${base}`, s:snap() }); next = base; }
+  }
+  return { ev, tx, retx, rounds, N };
+}
+function simSR(N, W, p){
+  const ev = []; const st = Array(N).fill(0), rcv = Array(N).fill(false);
+  let base=0, rbase=0, tx=0, retx=0, rounds=0;
+  const snap = () => ({ base, W, send: st.map(v=> v===2 ? 'acked' : v===1 ? 'sent' : ''),
+                        recv: rcv.map((v,i)=> !v ? '' : i<rbase ? 'got' : 'buf') });
+  while (base < N){
+    rounds++;
+    ev.push({ k:'round', r:rounds, a:base, b:Math.min(base+W,N)-1, s:snap() });
+    for (let i=base;i<base+W && i<N;i++){
+      if (st[i] === 2) continue;
+      tx++; const re = st[i] === 1; if (re) retx++; st[i] = 1;
+      const e = { k:'tx', f:i, re, lost:false, rx:null, ack:null, ackLost:false };
+      if (chance(p)) e.lost = true;
+      else {
+        if (rcv[i]) e.rx = 'duplicate';
+        else { rcv[i] = true; e.rx = i === rbase ? 'accepted' : 'buffered'; while (rbase < N && rcv[rbase]) rbase++; }
+        e.ack = i;
+        if (chance(p)) e.ackLost = true; else st[i] = 2;
+      }
+      e.s = snap(); ev.push(e);
+    }
+    const ob = base; while (base < N && st[base] === 2) base++;
+    if (base > ob) ev.push({ k:'slide', to:base, s:snap() });
+    const t = []; for (let i=base;i<base+W && i<N;i++) if (st[i] === 1) t.push('F'+i);
+    if (t.length) ev.push({ k:'timeout', txt:`timeout · resend ${t.join(', ')} only`, s:snap() });
+  }
+  return { ev, tx, retx, rounds, N };
+}
+
+/* ===================== tabs ===================== */
+const views = ['pipeline','framing','detect','arq','bench'];
+let benchDone = false;
+function show(v){
+  if (!views.includes(v)) v = 'pipeline';
+  document.querySelectorAll('.simtabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.v === v));
+  views.forEach(x => $('v-'+x).hidden = x !== v);
+  if (v === 'bench' && !benchDone){ benchDone = true; setTimeout(runBench, 30); }
+}
+document.querySelectorAll('.simtabs button').forEach(b => b.onclick = () => show(b.dataset.v));
+
+/* ===================== pipeline view ===================== */
+function runPipeline(){
+  const msg = $('p-msg').value || 'HELLO';
+  const fs = Math.max(1, Math.min(8, +$('p-fs').value || 4));
+  const noise = Math.max(0, Math.min(90, +$('p-noise').value || 0));
+  seedRng(+$('p-seed').value || Date.now());
+  GEN = '100000111';
+  let received = '', totalTx = 0, caught = 0, html = '';
+  const nf = Math.ceil(msg.length / fs);
+  for (let f=0; f<nf; f++){
+    const payload = msg.slice(f*fs, f*fs+fs);
+    const data = pad(f & 255, 8) + toBits(payload);
+    const { cw } = encode(2, data);
+    const cwCls = [...Array(8).fill('seq'), ...Array(data.length-8).fill(''), ...Array(8).fill('red')];
+    const { out, m } = bitStuff(cw);
+    let att = '', n = 0;
+    while (true){
+      n++; totalTx++;
+      const wire = out.split(''), cls = m.slice();
+      if (chance(noise)){ const pos = 8 + ri(wire.length-16); flip(wire,pos); cls[pos] = 'err'; }
+      const w = wire.join('');
+      const ds = bitDestuff(w);
+      let verdict;
+      if (ds === null){ caught++; verdict = `<span class="pill bad">Framing error · NAK</span>`; }
+      else if (!check(2, ds)){ caught++; verdict = `<span class="pill bad">CRC failed · NAK, resend</span>`; }
+      else {
+        const p = fromBits(ds.slice(8, ds.length-8)); received += p;
+        verdict = `<span class="pill ok">CRC OK · ACK${f+1} · "${esc(p)}"</span>`;
+      }
+      att += `<div class="attempt"><div class="row"><div class="lab">Attempt ${n} · on the wire</div><div>${renderBits(w, cls)}</div></div><div class="row"><div class="lab">Receiver</div><div>${verdict}</div></div></div>`;
+      if (ds !== null && check(2, ds)) break;
+      if (n > 40) break;
+    }
+    html += `<div class="frame done"><h3>Frame ${f} <span>· payload "${esc(payload)}" · ${n} transmission${n>1?'s':''}</span></h3>
+      <div class="row"><div class="lab">SEQ + DATA + CRC</div><div>${renderBits(cw, cwCls, {group:8})}</div></div>
+      <div class="row"><div class="lab">Stuffed + flags</div><div>${renderBits(out, m)}</div></div>${att}</div>`;
+  }
+  $('p-frames').innerHTML = html;
+  const ok = received === msg;
+  $('p-summary').innerHTML = `<div class="stats">
+    <div class="stat"><div class="v">${nf}</div><div class="k">frames</div></div>
+    <div class="stat"><div class="v">${totalTx}</div><div class="k">transmissions</div></div>
+    <div class="stat"><div class="v">${caught}</div><div class="k">corrupted frames caught</div></div>
+    <div class="stat"><div class="v">${(100*nf/totalTx).toFixed(0)}%</div><div class="k">link efficiency</div></div></div>
+    <div class="row"><div class="lab">Sent</div><div style="font-family:var(--f-mono)">${esc(msg)}</div></div>
+    <div class="row"><div class="lab">Received</div><div style="font-family:var(--f-mono)">${esc(received)} &nbsp;<span class="pill ${ok?'ok':'bad'}">${ok?'Delivered intact':'Mismatch'}</span></div></div>`;
+}
+$('p-run').onclick = runPipeline;
+
+/* ===================== framing view ===================== */
+function runFraming(){
+  const raw = $('bs-in').value;
+  const isBits = raw.length && /^[01]+$/.test(raw);
+  const data = isBits ? raw : toBits(raw || 'Hi');
+  const { out, m } = bitStuff(data), back = bitDestuff(out);
+  const nStuff = m.filter(x=>x==='stuff').length;
+  $('bs-out').innerHTML = `
+    <div class="row"><div class="lab">Data${isBits?'':' (ASCII)'}</div><div>${renderBits(data, null, {group:8})}</div></div>
+    <div class="row"><div class="lab">On the wire</div><div>${renderBits(out, m)}</div></div>
+    <div class="row"><div class="lab">De-stuffed</div><div>${renderBits(back||'', null, {group:8})}</div></div>
+    <div><span class="pill ${back===data?'ok':'bad'}">${back===data?'Recovered exactly':'Mismatch'}</span>
+    <span class="muted" style="font-size:13px;margin-left:8px">${nStuff} stuffed bit${nStuff===1?'':'s'} · ${data.length} → ${out.length} bits</span></div>`;
+
+  const t = $('by-in').value || 'A~B}C';
+  const st = byteStuff(t), bk = byteDestuff(st);
+  const box = arr => `<div class="bytes">${arr.map(x=>`<div class="byte ${x.c}"><span>${x.v>=32&&x.v<127?esc(String.fromCharCode(x.v)):'·'}</span><small>${x.v.toString(16).toUpperCase().padStart(2,'0')}</small></div>`).join('')}</div>`;
+  $('by-out').innerHTML = `
+    <div class="row"><div class="lab">Data</div><div>${box([...t].map(ch=>({v:ch.charCodeAt(0)&255,c:''})))}</div></div>
+    <div class="row"><div class="lab">On the wire</div><div>${box(st)}</div></div>
+    <div class="row"><div class="lab">De-stuffed</div><div>${box([...(bk||'')].map(ch=>({v:ch.charCodeAt(0)&255,c:''})))}</div></div>
+    <div><span class="pill ${bk===t?'ok':'bad'}">${bk===t?'Recovered exactly':'Mismatch'}</span>
+    <span class="muted" style="font-size:13px;margin-left:8px">${st.length-t.length-2} ESC byte${st.length-t.length-2===1?'':'s'} inserted</span></div>`;
+}
+$('bs-in').oninput = runFraming; $('by-in').oninput = runFraming;
+
+/* ===================== error detection view ===================== */
+let D = { m:2, data:'', cw:'', cls:[], rx:[] };
+function buildDetect(){
+  D.m = +$('d-m').value; GEN = $('d-gen').value;
+  const msg = $('d-msg').value || 'A';
+  D.data = toBits(msg);
+  const e = encode(D.m, D.data); D.cw = e.cw; D.cls = e.cls; D.rx = D.cw.split('');
+  const g = D.m === 0 ? 9 : 8;
+  let extra = '';
+  if (D.m === 0){
+    extra = `<div class="scroll"><table><tr><th>Char</th><th>Bits</th><th>1s</th><th>Parity</th><th>Even-parity bit</th></tr>${[...msg].map(ch=>{const b=toBits(ch),o=ones(b);return `<tr><td>'${esc(ch)}'</td><td style="font-family:var(--f-mono)">${b}</td><td>${o}</td><td>${o%2?'Odd':'Even'}</td><td style="font-family:var(--f-mono);color:var(--redund)">${o%2}</td></tr>`}).join('')}</table></div>`;
+  } else if (D.m === 1){
+    const rows = []; for (let i=0;i<D.data.length;i+=8) rows.push(D.data.slice(i,i+8));
+    extra = `<pre class="div">${rows.map((r,i)=>`${r}   '${esc(msg[i])}'`).join('\n')}\n${'-'.repeat(8)}\n<span class="r">${D.cw.slice(-8)}</span>   column parity (LRC)</pre>`;
+  } else if (D.m === 2){
+    const r = GEN.length-1, dv = D.data + '0'.repeat(r);
+    if (dv.length <= 72){
+      const { rem, steps } = mod2div(dv, GEN, true);
+      let t = `<span class="d">${dv}</span>   dividend (data + ${r} zeros)\n`;
+      for (const s of steps){ t += `${' '.repeat(s.i)}<span class="g">${GEN}</span>   XOR at bit ${s.i}\n${' '.repeat(s.i+1)}${s.after.slice(s.i+1)}\n`; }
+      t += `\nRemainder = <span class="r">${rem}</span>`;
+      extra = `<pre class="div">${t}</pre>`;
+    } else extra = `<p class="note">Message too long to print the long division. Use 8 characters or fewer to see every XOR step.</p>`;
+  } else {
+    let p = D.data; while (p.length % 16) p += '0';
+    const words = []; for (let i=0;i<p.length;i+=16) words.push(parseInt(p.slice(i,i+16),2).toString(16).toUpperCase().padStart(4,'0'));
+    const s = csum16(p);
+    extra = `<pre class="div">${words.join('\n')}\n----\n${s.toString(16).toUpperCase().padStart(4,'0')}   ones' complement sum\n<span class="r">${((~s)&0xFFFF).toString(16).toUpperCase().padStart(4,'0')}</span>   checksum = complement of the sum</pre>`;
+  }
+  $('d-sender').innerHTML = `<span class="eyebrow">Sender</span><h2>${METHODS[D.m]} codeword</h2>
+    ${renderBits(D.cw, D.cls, {group:g})}
+    <p class="note">${D.data.length} data bits + ${D.cw.length-D.data.length} redundant bits</p>${extra}`;
+  renderRecv();
+}
+function renderRecv(){
+  const rx = D.rx.join(''), g = D.m === 0 ? 9 : 8;
+  const cls = D.rx.map((b,i)=> b !== D.cw[i] ? 'err' : D.cls[i]);
+  const ok = check(D.m, rx), changed = rx !== D.cw, nErr = cls.filter(c=>c==='err').length;
+  let detail = '';
+  if (D.m === 2) detail = `Receiver divides the whole codeword by ${GEN}. Remainder = <b style="font-family:var(--f-mono)">${mod2div(rx,GEN).rem}</b>`;
+  if (D.m === 3) detail = `Receiver adds every 16-bit word. Sum = <b style="font-family:var(--f-mono)">${csum16(rx).toString(16).toUpperCase().padStart(4,'0')}</b> (must be FFFF)`;
+  if (D.m === 0) detail = 'Receiver checks that every 9-bit group has an even number of 1s.';
+  if (D.m === 1) detail = 'Receiver checks that every bit column, LRC row included, has even parity.';
+  const pill = !changed ? `<span class="pill ok">Accepted · no error</span>`
+    : !ok ? `<span class="pill bad">Error detected · frame discarded</span>`
+    : `<span class="pill warn">Accepted, but corrupted · undetected error</span>`;
+  $('d-recv').innerHTML = `<span class="eyebrow">Receiver</span><h2>Received codeword</h2>
+    <p class="note">Click any bit to flip it and watch the verdict change.</p>
+    <div id="d-bits">${renderBits(rx, cls, {group:g, click:true})}</div>
+    <div>${pill} <span class="muted" style="font-size:13px;margin-left:8px">${nErr} bit${nErr===1?'':'s'} flipped</span></div>
+    <p class="note">${detail}</p>`;
+  $('d-bits').querySelectorAll('.bit').forEach(el => {
+    const act = () => { flip(D.rx, +el.dataset.i); renderRecv(); };
+    el.onclick = act; el.onkeydown = e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); act(); const n=$('d-bits').querySelector(`[data-i="${el.dataset.i}"]`); n&&n.focus(); } };
+  });
+}
+['d-msg','d-m','d-gen'].forEach(id => $(id).addEventListener('input', buildDetect));
+document.querySelectorAll('[data-e]').forEach(b => b.onclick = () => {
+  const e = +b.dataset.e; seedRng(Date.now());
+  if (e === 0) D.rx = D.cw.split(''); else D.rx = inject(D.cw, e, 6).cw.split('');
+  renderRecv();
+});
+
+/* ===================== ARQ view ===================== */
+let A = null, timer = null;
+function runArq(){
+  const proto = $('a-p').value, N = Math.max(1, Math.min(30, +$('a-n').value || 8));
+  let W = proto === 'sw' ? 1 : Math.max(1, Math.min(15, +$('a-w').value || 4));
+  if (proto === 'sr') W = Math.min(W, N);
+  $('a-w').disabled = proto === 'sw';
+  const p = Math.max(0, Math.min(80, +$('a-loss').value || 0));
+  seedRng(+$('a-seed').value || Date.now());
+  A = proto === 'sr' ? simSR(N, W, p) : simGBN(N, W, p);
+  A.name = { sw:'Stop-and-Wait', gbn:'Go-Back-N', sr:'Selective Repeat' }[proto];
+  $('a-stats').innerHTML = `
+    <div class="stat"><div class="v">${A.tx}</div><div class="k">transmissions</div></div>
+    <div class="stat"><div class="v">${A.retx}</div><div class="k">retransmissions</div></div>
+    <div class="stat"><div class="v">${A.rounds}</div><div class="k">timeout rounds</div></div>
+    <div class="stat"><div class="v">${(100*N/A.tx).toFixed(1)}%</div><div class="k">efficiency (${A.name})</div></div>`;
+  drawLadder();
+  $('a-step').max = A.ev.length - 1; $('a-step').value = A.ev.length - 1;
+  setStep(A.ev.length - 1);
+}
+function drawLadder(){
+  const SX = 250, RX = 500, WD = 660;
+  let y = 44, out = '';
+  out += `<text class="head" x="${SX}" y="22" text-anchor="middle">Sender</text><text class="head" x="${RX}" y="22" text-anchor="middle">Receiver</text>`;
+  A.ev.forEach((e, k) => {
+    let g = '';
+    if (e.k === 'round'){
+      g += `<rect class="band" x="0" y="${y}" width="${WD}" height="22"/><text x="10" y="${y+15}">Round ${e.r} · window F${e.a}–F${e.b}</text>`; y += 30;
+    } else if (e.k === 'tx'){
+      const y2 = y + 24, my = y + 12, mx = (SX+RX)/2;
+      g += `<text class="lbl-f" x="${SX-10}" y="${y+4}" text-anchor="end">F${e.f}${e.re?' ↻':''}</text>`;
+      if (e.lost){
+        g += `<line class="fr${e.re?' re':''}" x1="${SX}" y1="${y}" x2="${mx}" y2="${my}"/><path class="x" d="M${mx-5} ${my-5}L${mx+5} ${my+5}M${mx+5} ${my-5}L${mx-5} ${my+5}"/><text class="lbl-bad" x="${mx+10}" y="${my-4}">lost</text>`;
+        y += 30;
+      } else {
+        g += `<line class="fr${e.re?' re':''}" x1="${SX}" y1="${y}" x2="${RX}" y2="${y2}"/>`;
+        const c = e.rx === 'accepted' ? 'lbl-ok' : e.rx === 'buffered' ? 'lbl-warn' : 'lbl-bad';
+        g += `<text class="${c}" x="${RX+10}" y="${y2+4}">${e.rx}</text>`;
+        if (e.ack !== null){
+          const y3 = y2 + 22, ay = (y2+y3)/2;
+          if (e.ackLost) g += `<line class="ak" x1="${RX}" y1="${y2}" x2="${mx}" y2="${ay}"/><path class="x" d="M${mx-5} ${ay-5}L${mx+5} ${ay+5}M${mx+5} ${ay-5}L${mx-5} ${ay+5}"/><text class="lbl-bad" x="${mx-10}" y="${ay+14}" text-anchor="end">ACK${e.ack} lost</text>`;
+          else g += `<line class="ak" x1="${RX}" y1="${y2}" x2="${SX}" y2="${y3}"/><text class="lbl-ok" x="${SX-10}" y="${y3+4}" text-anchor="end">ACK${e.ack}</text>`;
+          y = y3 + 22;
+        } else y = y2 + 10;
+      }
+    } else if (e.k === 'slide'){
+      g += `<text x="12" y="${y+10}">window slides → F${e.to}</text>`; y += 24;
+    } else {
+      g += `<text class="tmo" x="12" y="${y+10}">${e.txt}</text>`; y += 26;
+    }
+    out += `<g data-k="${k}">${g}</g>`;
+  });
+  y += 10;
+  const lanes = `<line class="lane" x1="${SX}" y1="34" x2="${SX}" y2="${y}"/><line class="lane" x1="${RX}" y1="34" x2="${RX}" y2="${y}"/>`;
+  const svg = $('a-ladder');
+  svg.setAttribute('viewBox', `0 0 ${WD} ${y}`);
+  svg.innerHTML = lanes + out;
+}
+function setStep(k){
+  const e = A.ev[k]; if (!e) return;
+  $('a-ladder').querySelectorAll('g[data-k]').forEach(g => {
+    const i = +g.dataset.k; g.classList.toggle('fut', i > k); g.classList.toggle('now', i === k && k !== A.ev.length-1);
+  });
+  const s = e.s, N = A.N;
+  $('a-send').innerHTML = s.send.map((st,i)=>`<div class="cell ${st}${i>=s.base&&i<s.base+s.W?' win':''}">F${i}</div>`).join('');
+  $('a-recv').innerHTML = s.recv.map((st,i)=>`<div class="cell ${st}">F${i}</div>`).join('');
+  let d = '';
+  if (e.k === 'round') d = `Round ${e.r} starts`;
+  else if (e.k === 'tx') d = `F${e.f} ${e.lost ? 'lost on the link' : e.rx}${e.ack!==null ? (e.ackLost ? `, ACK${e.ack} lost` : `, ACK${e.ack} back`) : ''}`;
+  else if (e.k === 'slide') d = `Window slides to F${e.to}`;
+  else d = e.txt;
+  $('a-steplbl').textContent = `Step ${k+1}/${A.ev.length} · ${d}`;
+}
+$('a-step').oninput = e => setStep(+e.target.value);
+$('a-run').onclick = () => { stopPlay(); runArq(); };
+['a-p'].forEach(id => $(id).addEventListener('change', () => { stopPlay(); runArq(); }));
+function stopPlay(){ clearInterval(timer); timer = null; $('a-play').textContent = 'Play'; }
+$('a-play').onclick = () => {
+  if (timer){ stopPlay(); return; }
+  const r = $('a-step'); if (+r.value >= +r.max) r.value = 0;
+  setStep(+r.value); $('a-play').textContent = 'Pause';
+  timer = setInterval(() => { const v = +r.value + 1; if (v > +r.max){ stopPlay(); return; } r.value = v; setStep(v); }, 650);
+};
+
+/* ===================== experiments ===================== */
+function runBench(){
+  seedRng(2026); GEN = '100000111';
+  const P = [['Single-bit',1,0],['Two-bit',2,0],['Three-bit',3,0],['Burst ≤ 8',4,8],['Burst = 12',4,12],['Burst = 20',4,20]];
+  const trials = 600;
+  const res = P.map(([name,pat,L]) => METHODS.map((_,m) => {
+    let det = 0;
+    for (let t=0;t<trials;t++){
+      let d=''; for (let i=0;i<16;i++) d += pad(ri(256),8);
+      const { cw } = encode(m, d);
+      const len = pat===4 && L===8 ? 2 + ri(7) : L;
+      if (!check(m, inject(cw, pat, len).cw)) det++;
+    }
+    return 100*det/trials;
+  }));
+  const heat = r => { const c = r >= 99.95 ? 'var(--ok)' : r >= 90 ? 'var(--stuff)' : 'var(--err)';
+    const a = r >= 99.95 ? 14 : r >= 90 ? 18 : 22; return `style="color:${c};background:color-mix(in srgb,${c} ${a}%,transparent)"`; };
+  $('b-det').innerHTML = `<tr><th>Error pattern</th>${METHODS.map(m=>`<th style="text-align:right">${m}</th>`).join('')}</tr>` +
+    P.map((p,i)=>`<tr><td>${p[0]}</td>${res[i].map(r=>`<td class="heat" ${heat(r)}>${r.toFixed(1)}%</td>`).join('')}</tr>`).join('');
+  $('b-det-note').textContent = 'VRC misses any even number of flips inside one character and only looks good on two-bit errors because random flips usually land in different bytes. LRC misses two flips in the same bit column. CRC-8 and LRC catch every burst up to 8 bits long, and CRC-8 misses roughly 1 long burst in 256.';
+
+  const losses = [0,5,10,15,20,25,30,35,40,45,50], N = 40, W = 7, runs = 80;
+  const series = [['Stop-and-Wait','--s1',p=>simGBN(N,1,p)],['Go-Back-N','--s2',p=>simGBN(N,W,p)],['Selective Repeat','--s3',p=>simSR(N,W,p)]]
+    .map(([name,col,f]) => ({ name, col, pts: losses.map(p => { let s=0; for (let r=0;r<runs;r++) s += f(p).tx; return s/runs/N; }) }));
+  const maxY = Math.ceil(Math.max(...series.flatMap(s=>s.pts)));
+  const L = 52, R = 560, T = 16, B = 280;
+  const X = p => L + (R-L)*p/50, Y = v => B - (B-T)*(v-1)/(maxY-1);
+  let g = '';
+  for (let v=1; v<=maxY; v++) g += `<line class="grid" x1="${L}" x2="${R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${v}×</text>`;
+  losses.forEach(p => { if (p%10===0) g += `<text x="${X(p)}" y="${B+18}" text-anchor="middle">${p}%</text>`; });
+  g += `<text x="${(L+R)/2}" y="${B+36}" text-anchor="middle">frame and ACK loss rate</text>`;
+  series.forEach((s,i) => {
+    g += `<polyline fill="none" stroke="var(${s.col})" stroke-width="2.4" points="${s.pts.map((v,j)=>`${X(losses[j])},${Y(v)}`).join(' ')}"/>`;
+    s.pts.forEach((v,j)=> g += `<circle cx="${X(losses[j])}" cy="${Y(v)}" r="${j===s.pts.length-1?4:2.5}" fill="var(${s.col})"/>`);
+    const last = s.pts[s.pts.length-1];
+    let ly = Y(last) + 4 + (s.name==='Stop-and-Wait' ? 12 : s.name==='Selective Repeat' ? -6 : 0);
+    g += `<text x="${R+10}" y="${ly}" style="fill:var(${s.col});font-weight:600">${s.name} ${last.toFixed(2)}×</text>`;
+  });
+  $('b-chart').innerHTML = g;
+}
+$('b-run').onclick = () => { $('b-det').innerHTML = '<tr><td>Running…</td></tr>'; setTimeout(runBench, 30); };
+
+/* ===================== boot ===================== */
+runPipeline(); runFraming(); buildDetect(); runArq();
+show('pipeline');
+</script>
